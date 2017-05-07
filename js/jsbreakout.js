@@ -6,6 +6,8 @@ var y = canvas.height-30;
 // controls
 var rightPressed = false;
 var leftPressed = false;
+var pausedGame = false;
+var activeGame = false;
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
 document.addEventListener("mousemove", mouseMoveHandler, false);
@@ -26,6 +28,9 @@ function keyUpHandler(e) {
   else if(e.keyCode == 37) {
       leftPressed = false;
   }
+  else if (e.keyCode == 32) {
+        togglePauseGame();
+  }
 }
 
 function mouseMoveHandler(e) {
@@ -34,6 +39,21 @@ function mouseMoveHandler(e) {
         paddleX = relativeX - paddleWidth/2;
     }
 }
+
+function togglePauseGame() {
+  if (!pausedGame) {
+    if(!activeGame) {
+      activeGame = true;
+      document.location.reload();
+    } else {
+      pausedGame = true;
+    }
+  }
+  else {
+    pausedGame = false;
+  }
+}
+
 // lives;
 var lives = 3;
 function drawLives() {
@@ -85,6 +105,7 @@ function drawBricks() {
       }
   }
 }
+
 // ball
 var ballRadius = 10;
 var dx = 2;
@@ -137,9 +158,7 @@ function collisionDetection() {
             b.status = 0;
             score++;
             if(score == brickRowCount*brickColumnCount) {
-              drawOverlay("YOU WIN!");
-              alert("YOU WIN, CONGRATULATIONS!");
-              document.location.reload();
+              activeGame = false;
             }
           }
         }
@@ -156,8 +175,9 @@ function draw() {
   drawPaddle();
   drawScore();
   drawLives();
-  collisionDetection();
+}
 
+function moveBall() {
   // bounce off the walls left and right
   if(x + dx > canvas.width-ballRadius || x + dx < ballRadius) {
       dx = -dx;
@@ -174,9 +194,7 @@ function draw() {
         // ball out
         lives--;
         if(!lives) {
-            drawOverlay("Game Over");
-            alert("GAME OVER");
-            document.location.reload();
+          activeGame = false;
         }
         else {
             x = canvas.width/2;
@@ -187,18 +205,37 @@ function draw() {
         }
       }
   }
+  x+=dx;
+  y+=dy;
+}
 
+function movePaddle() {
   if(rightPressed && paddleX < canvas.width-paddleWidth) {
       paddleX += paddleSpeed;
   }
   else if(leftPressed && paddleX > 0) {
       paddleX -= paddleSpeed;
   }
-
-  x+=dx;
-  y+=dy;
-
-  requestAnimationFrame(draw);
 }
 
-draw();
+function breakout() {
+  draw();
+  movePaddle();
+  if( !pausedGame && activeGame ) {
+    moveBall();
+    collisionDetection();
+  } else {
+    if (pausedGame) {
+      drawOverlay("Game Paused");
+    } else if (!lives) {
+      drawOverlay("Game Over");
+    } else if(score == brickRowCount*brickColumnCount) {
+      drawOverlay("YOU WIN!");
+    }
+  }
+  requestAnimationFrame(breakout);
+}
+
+pausedGame = false;
+activeGame = true;
+breakout();
