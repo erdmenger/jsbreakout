@@ -68,44 +68,56 @@ function drawScore() {
   ctx.fillText("Score: "+score, 60, 20);
 }
 
+function drawDXDY() {
+  ctx.font = "16px Arial";
+  ctx.fillStyle = "#0095DD";
+  ctx.fillText("[dx:dy] [" + dx + " : " + dy + "]", canvas.width/2-30, 20);
+}
+
 // bricks
 var brickRowCount = 3;
-var brickColumnCount = 5;
-var brickWidth = 75;
-var brickHeight = 20;
-var brickPadding = 10;
-var brickOffsetTop = 30;
-var brickOffsetLeft = 30;
+var brickColumnCount = 8;
+var brickWidth = canvas.width/(brickColumnCount + 1);    // 75 was default
+var brickHeight = brickWidth * 0.3;
+var brickPadding = brickWidth/(brickColumnCount + 1); // default was 10;
+var brickOffsetTop = canvas.height *.2;
+var brickOffsetLeft = brickWidth/(brickColumnCount + 1); // default was 30;
 
 var bricks = [];
 for(c=0; c<brickColumnCount; c++) {
   bricks[c] = [];
   for(r=0; r<brickRowCount; r++) {
-    bricks[c][r] = { x: 0, y: 0, status: 1 };
+    bricks[c][r] = { x: 0, y: 0, status: brickRowCount-r };
   }
 }
 
 
 function drawBricks() {
   for(c=0; c<brickColumnCount; c++) {
-      for(r=0; r<brickRowCount; r++) {
-        if(bricks[c][r].status == 1) {
-          var brickX = (c*(brickWidth+brickPadding))+brickOffsetLeft;
-          var brickY = (r*(brickHeight+brickPadding))+brickOffsetTop;
-          bricks[c][r].x = brickX;
-          bricks[c][r].y = brickY;
-          ctx.beginPath();
-          ctx.rect(brickX, brickY, brickWidth, brickHeight);
+    for(r=0; r<brickRowCount; r++) {
+      if(bricks[c][r].status > 0) {
+        var brickX = (c*(brickWidth+brickPadding))+brickOffsetLeft;
+        var brickY = (r*(brickHeight+brickPadding))+brickOffsetTop;
+        bricks[c][r].x = brickX;
+        bricks[c][r].y = brickY;
+        ctx.beginPath();
+        ctx.rect(brickX, brickY, brickWidth, brickHeight);
+        if (3 == bricks[c][r].status) {
+          ctx.fillStyle = "black";
+        } else if (2 == bricks[c][r].status) {
+          ctx.fillStyle = "darkblue";
+        } else {
           ctx.fillStyle = "#0095DD";
-          ctx.fill();
-          ctx.closePath();
         }
+        ctx.fill();
+        ctx.closePath();
       }
+    }
   }
 }
 
 // ball
-var ballRadius = 10;
+var ballRadius = canvas.width/60; // default was 8
 var dx = ballSpeed/2; // default was 2
 var dy = - ballSpeed/2;
 
@@ -155,12 +167,19 @@ function drawOverlay(text) {
 
 function collisionDetection() {
   for(c=0; c<brickColumnCount; c++) {
-      for(r=0; r<brickRowCount; r++) {
-          var b = bricks[c][r];
-          if(b.status == 1) {
-            if(x > b.x && x < b.x+brickWidth && y > b.y && y < b.y+brickHeight) {
+    for(r=0; r<brickRowCount; r++) {
+      var b = bricks[c][r];
+      if(b.status > 0) {
+        if( x > b.x && x < b.x+brickWidth && y > b.y && y < b.y+brickHeight) {
+          if( (x < b.x+ballRadius && dx>0) ||
+              (x > b.x+brickWidth-ballRadius && dx<0) ) {
+            dx = -dx;
+          } else {
             dy = -dy;
-            b.status = 0;
+          }
+
+          b.status -= 1;
+          if (0==b.status) {
             score++;
             if(score == brickRowCount*brickColumnCount) {
               activeGame = false;
@@ -169,6 +188,7 @@ function collisionDetection() {
           }
         }
       }
+    }
   }
 }
 
@@ -177,9 +197,9 @@ function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   drawBricks();
+  drawScore();
   drawBall();
   drawPaddle();
-  drawScore();
   drawLives();
 }
 
@@ -238,6 +258,32 @@ function movePaddle() {
   }
 }
 
+function splashscreen() {
+
+      ctx.beginPath();
+      ctx.rect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "rgba(0,0,0,.2)";
+      ctx.fill();
+      ctx.closePath();
+
+      ctx.beginPath();
+      ctx.font = "35px Courier New";
+      ctx.fillStyle = "black";
+      ctx.textAlign = "center";
+      ctx.fillText("j s B R E A K O U T", canvas.width / 2, canvas.height / 2 - 40);
+      ctx.closePath();
+
+      ctx.beginPath();
+      ctx.font = "25px Courier New";
+      ctx.fillStyle = "black";
+      ctx.textAlign = "center";
+      ctx.fillText("Press SPACE to start.", canvas.width / 2, canvas.height/2 + 60);
+      ctx.fillText("LEFT, RIGHT or use MOUSE ", canvas.width / 2, canvas.height/2 + 120);
+      ctx.fillText("to move the paddle.", canvas.width / 2, canvas.height/2 + 160);
+      ctx.closePath();
+
+}
+
 function breakout() {
   draw();
   movePaddle();
@@ -247,12 +293,13 @@ function breakout() {
   } else {
     if (pausedGame) {
       drawOverlay("Game Paused");
+      splashscreen();
     } else if (!lives) {
       drawOverlay("Game Over");
     } else if(endedGame) {
       drawOverlay("YOU WIN!");
     } else {
-      drawOverlay("SPACE to start.");
+      splashscreen();
     }
   }
   requestAnimationFrame(breakout);
