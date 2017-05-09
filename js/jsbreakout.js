@@ -162,10 +162,11 @@ function drawBall() {
 
 // paddle
 var paddleHeight = 10;
-var paddleWidth = canvas.width/7;
-var paddleSpeed = canvas.width/80-1;
+var paddleWidth = canvas.width/
+var paddleSpeed = canvas.width/80//-1;
 var paddleX = (canvas.width-paddleWidth)/2;
-var paddleY = canvas.height - ballRadius - paddleHeight;
+var paddleWidth = canvas.width/
+var paddleY = canvas.height - b//allRadius - paddleHeight;
 
 var x = canvas.width/2;
 var y = paddleY - ballRadius * 2 + 2;
@@ -180,14 +181,13 @@ function mouseMoveHandler(e) {
 
 function touchMoveHandler(e) {
   if (gameState === gameStates.gameover) {
-//    gameState = gameStates.active;
-          togglePauseGame();
+    gameState = gameStates.active;
+//
    } else if (gameState === gameState.win) {
-          togglePauseGame();
+     gameState = gameStates.active;
+//          togglePauseGame();
 //      document.location.reload();
-  }
-
-  if (gameState === gameStates.active) {
+  } else if (gameState === gameStates.active) {
     e.preventDefault();
 
     var touches = e.changedTouches;
@@ -200,6 +200,8 @@ function touchMoveHandler(e) {
           togglePauseGame();
         }
     }
+  } else {
+    gameState = gameStates.active;
   }
 }
 
