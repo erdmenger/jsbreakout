@@ -318,9 +318,10 @@ function splashscreen() {
       ctx.font = "25px Courier New";
       ctx.fillStyle = "black";
       ctx.textAlign = "center";
-      ctx.fillText("Press SPACE to start.", canvas.width / 2, canvas.height/2 + 60);
-      ctx.fillText("LEFT, RIGHT or use MOUSE ", canvas.width / 2, canvas.height/2 + 120);
-      ctx.fillText("to move the paddle.", canvas.width / 2, canvas.height/2 + 160);
+      ctx.fillText("Press SPACE to start.", canvas.width / 2, canvas.height/2 + 50);
+      ctx.fillText("LEFT, RIGHT or use MOUSE ", canvas.width / 2, canvas.height/2 + 80);
+      ctx.fillText("to move the paddle.", canvas.width / 2, canvas.height/2 + 110);
+      ctx.fillText("or TOUCH the screen", canvas.width / 2, canvas.height/2 + 150);
       ctx.closePath();
 
 }
