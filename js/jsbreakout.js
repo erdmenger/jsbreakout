@@ -194,6 +194,7 @@ function touchMoveHandler(e) {
         var touch = touches[i];
         if (touch.clientY > canvas.height-50) {
           movePaddleByClientX(touch.clientX);
+          gameState = gameStates.active;
         } else {
           togglePauseGame();
         }
