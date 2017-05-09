@@ -151,6 +151,14 @@ function touchMoveHandler(e) {
 //    if (gameState === gameStates.active) {
 //        e.preventDefault();
 
+      if(!activeGame) {
+        activeGame = true;
+        if(endedGame) {
+          endedGame = false;
+          document.location.reload();
+        }
+      }
+
         var touches = e.changedTouches;
 
         for (var i = 0; i < touches.length; i++) {
