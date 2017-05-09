@@ -13,6 +13,7 @@ var endedGame = false;
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
 document.addEventListener("mousemove", mouseMoveHandler, false);
+document.addEventListener("touchmove", touchMoveHandler, {passive: false, capture: false});
 
 function keyDownHandler(e) {
   if(e.keyCode == 39) {
@@ -142,9 +143,41 @@ function mouseMoveHandler(e) {
     }
 }
 
+
+var gameStates = { "active": 0, "paused": 1, "win": 2, "gameover": 3 };
+Object.freeze(gameStates);
+
+function touchMoveHandler(e) {
+//    if (gameState === gameStates.active) {
+//        e.preventDefault();
+
+        var touches = e.changedTouches;
+
+        for (var i = 0; i < touches.length; i++) {
+            var touch = touches[i];
+            movePaddleByClientX(touch.clientX);
+        }
+//    }
+}
+
+function movePaddleByClientX(clientX) {
+    var relativeX = clientX - canvas.offsetLeft;
+    if (relativeX > 0 && (relativeX + (paddleWidth / 2)) < canvas.width) {
+        var newX = relativeX - paddleWidth / 2;
+
+        if (newX <= 0) {
+            paddleX = 0;
+        } else if (newX >= canvas.width) {
+            paddleX = canvas.width;
+        } else {
+            paddleX = newX;
+        }
+    }
+}
+
 function drawPaddle() {
   ctx.beginPath();
-  ctx.rect(paddleX, canvas.height-paddleHeight, paddleWidth, paddleHeight);
+  ctx.rect(paddleX, canvas.height-paddleHeight-10, paddleWidth, paddleHeight);
   ctx.fillStyle = "#0095DD";
   ctx.fill();
   ctx.closePath();
@@ -211,7 +244,7 @@ function moveBall() {
   // bounce the ball from top
   if(y + dy < ballRadius) {
       dy = -dy;
-  } else if(y + dy > canvas.height-ballRadius) {
+  } else if(y + dy > canvas.height - ballRadius - paddleHeight ) {
       // bounce from paddle
       if(x > paddleX && x < paddleX + paddleWidth) {
           dy = -dy;
