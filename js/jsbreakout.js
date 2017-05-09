@@ -179,14 +179,15 @@ function mouseMoveHandler(e) {
 
 
 function touchMoveHandler(e) {
-  if (gameState === gameStates.gameover) {
-    gameState = gameStates.active;
+//  if (gameState === gameStates.gameover) {
+//    gameState = gameStates.active;
 //
-   } else if (gameState === gameState.win) {
+//   } else if (gameState === gameState.win) {
      gameState = gameStates.active;
 //          togglePauseGame();
 //      document.location.reload();
-  } else if (gameState === gameStates.active) {
+//  } else
+  if (gameState === gameStates.active) {
     e.preventDefault();
 
     var touches = e.changedTouches;
@@ -200,7 +201,8 @@ function touchMoveHandler(e) {
         }
     }
   } else {
-    gameState = gameStates.active;
+//    gameState = gameStates.active;
+    togglePauseGame();
   }
 }
 
@@ -382,7 +384,7 @@ function breakout() {
   } else if(gameState === gameStates.win) {
     drawOverlay("YOU WIN!");
   } else if (gameState === gameStates.leveldone) {
-    drawOverlay("Get Ready for Level " + (currentLevel+1)*(tempoOffset*1));
+    drawOverlay("Get Ready for Level " + (currentLevel+1)*(tempoOffset+1));
     splashscreen();
   } else {
     drawOverlay("Get Ready!");
