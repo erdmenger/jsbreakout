@@ -1,16 +1,17 @@
 var canvas = document.getElementById("myCanvas");
 var ctx = canvas.getContext("2d");
 var ballSpeed = canvas.width/60;
+var lives = 3;
 
 // controls
-var gameStates = { "active": 0, "paused": 1, "win": 2, "gameover": 3 };
+var gameStates = { "active": 0, "paused": 1, "win": 2, "gameover": 3, "leveldone": 4 };
 Object.freeze(gameStates);
 
 var rightPressed = false;
 var leftPressed = false;
 var pausedGame = false;
 var activeGame = false;
-var gameState = gameStates.gameover;
+var gameState = false;
 var endedGame = false;
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
@@ -39,24 +40,28 @@ function keyUpHandler(e) {
 }
 
 function togglePauseGame() {
-  if (!pausedGame) {
-    if(!activeGame) {
-      activeGame = true;
-      if(endedGame) {
-        endedGame = false;
-        document.location.reload();
-      }
-    } else {
-      pausedGame = true;
-    }
-  }
-  else {
-    pausedGame = false;
+  if (gameState === gameStates.paused) {
+    gameState = gameStates.active;
+  } else if (gameState === gameStates.active) {
+    gameState = gameStates.paused;
+  } else if (gameState === gameStates.gameover) {
+      gameState = gameStates.active;
+      initialize();
+//      document.location.reload();
+  } else if (gameState === gameStates.win) {
+      gameState = gameStates.active;
+      initialize();
+//      document.location.reload();
+  } else if (gameState === gameStates.leveldone) {
+    gameState = gameStates.active;
+    initialize();
+//      document.location.reload();
+  } else {
+    gameState = gameStates.active;
   }
 }
 
 // lives;
-var lives = 3;
 function drawLives() {
   ctx.font = "16px Arial";
   ctx.fillStyle = "#0095DD";
@@ -77,23 +82,48 @@ function drawDXDY() {
   ctx.fillText("[dx:dy] [" + dx + " : " + dy + "]", canvas.width/2-30, 20);
 }
 
-// bricks
-var brickRowCount = 3;
-var brickColumnCount = 11;
+// initialize
+var brickRowCount = 2;
+var brickColumnCount = 5;
 var brickWidth = canvas.width/(brickColumnCount + 1);    // 75 was default
 var brickHeight = brickWidth * 0.3;
 var brickPadding = brickWidth/(brickColumnCount + 1); // default was 10;
 var brickOffsetTop = canvas.height *.2;
 var brickOffsetLeft = brickWidth/(brickColumnCount + 1); // default was 30;
 
-var bricks = [];
-for(c=0; c<brickColumnCount; c++) {
-  bricks[c] = [];
-  for(r=0; r<brickRowCount; r++) {
-    bricks[c][r] = { x: 0, y: 0, status: brickRowCount-r };
-  }
-}
+var levels = [];
+levels[0] = {row:1, column:5, speed:canvas.width/80 };
+levels[1] = {row:2, column:5, speed:canvas.width/80 };
+levels[2] = {row:3, column:5, speed:canvas.width/80 };
+levels[3] = {row:2, column:8, speed:canvas.width/60 };
+levels[4] = {row:3, column:11, speed:canvas.width/60 };
+levels[5] = {row:3, column:11, speed:canvas.width/60 };
 
+var numLevel = 2;
+var currentLevel = 0;
+var bricks = [];
+var numBricks = 0;
+var tempoOffset = 0;
+
+function initialize() {
+  brickColumnCount = levels[currentLevel].column;
+  brickRowCount = levels[currentLevel].row;
+  ballSpeed = levels[currentLevel].speed + tempoOffset;
+  numBricks = 0;
+  x = canvas.width/2;
+  y = paddleY - ballRadius * 2 + 2;
+  dx = ballSpeed / 2;
+  dy = ballSpeed / 2;
+
+  for(c=0; c<brickColumnCount; c++) {
+    bricks[c] = [];
+    for(r=0; r<brickRowCount; r++) {
+      bricks[c][r] = { x: 0, y: 0, status: brickRowCount-r };
+      numBricks += 1;
+    }
+  }
+//  currentLevel += 1;
+}
 
 function drawBricks() {
   for(c=0; c<brickColumnCount; c++) {
@@ -154,10 +184,13 @@ function touchMoveHandler(e) {
   if (gameState === gameStates.gameover) {
     activeGame = true;
     gameState = gameStates.active;
-    if(endedGame) {
+//    if(endedGame) {
+//      endedGame = false;
+//      document.location.reload();
+//    }
+   } else if (gameState === gameState.win) {
       endedGame = false;
       document.location.reload();
-    }
   }
 
   if (gameState === gameStates.active) {
@@ -225,13 +258,21 @@ function collisionDetection() {
           } else {
             dy = -dy;
           }
-
+          score++;
           b.status -= 1;
-          if (0==b.status) {
-            score++;
-            if(score == brickRowCount*brickColumnCount) {
-              activeGame = false;
-              endedGame = true;
+          if (0 === b.status) {
+          numBricks -= 1;
+            if(0 === numBricks) {
+//              activeGame = false;
+//              endedGame = true;
+              gameState = gameStates.leveldone;
+              currentLevel += 1;
+              if (currentLevel === numLevel) {
+                      // *(tempoOffset+1)
+                // gameState = gameStates.win;
+                currentLevel = 0;
+                tempoOffset = 1;
+              }
             }
           }
         }
@@ -283,6 +324,7 @@ function moveBall() {
         lives--;
         if(!lives) {
           activeGame = false;
+          gameState = gameStates.gameover;
         }
         else {
             x = canvas.width/2;
@@ -336,25 +378,27 @@ function splashscreen() {
 function breakout() {
   draw();
   movePaddle();
-  if( !pausedGame && activeGame ) {
+  if( gameState === gameStates.active ) {
     moveBall();
     collisionDetection();
-  } else {
-    if (pausedGame) {
+  } else if (gameState === gameStates.paused) {
       drawOverlay("Game Paused");
       splashscreen();
-    } else if (!lives) {
-      drawOverlay("Game Over");
-    } else if(endedGame) {
-      drawOverlay("YOU WIN!");
-    } else {
-      splashscreen();
-    }
+  } else if (gameState === gameStates.gameover) {
+    drawOverlay("Game Over");
+  } else if(gameState === gameStates.win) {
+    drawOverlay("YOU WIN!");
+  } else if (gameState === gameStates.leveldone) {
+    drawOverlay("Get Ready for Level " + (currentLevel+1)*(tempoOffset*1));
+    splashscreen();
+  } else {
+    drawOverlay("Get Ready for Devel " + currentLevel*(tempoOffset+1));
+    splashscreen();
   }
   requestAnimationFrame(breakout);
 }
 
 pausedGame = false;
 activeGame = false;
-// gameState = gameStates.active;
+initialize();
 breakout();
