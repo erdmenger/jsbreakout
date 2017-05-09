@@ -166,7 +166,7 @@ function touchMoveHandler(e) {
     var touches = e.changedTouches;
     for (var i = 0; i < touches.length; i++) {
         var touch = touches[i];
-        if (touch.clientY > canvas.height/2) {
+        if (touch.clientY > canvas.height-50) {
           movePaddleByClientX(touch.clientX);
         } else {
           togglePauseGame();
