@@ -10,7 +10,7 @@ Object.freeze(gameStates);
 var rightPressed = false;
 var leftPressed = false;
 var gameState = false;
-var endedGame = false;
+
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
 document.addEventListener("mousemove", mouseMoveHandler, false);
@@ -180,10 +180,11 @@ function mouseMoveHandler(e) {
 
 function touchMoveHandler(e) {
   if (gameState === gameStates.gameover) {
-    gameState = gameStates.active;
+//    gameState = gameStates.active;
+          togglePauseGame();
    } else if (gameState === gameState.win) {
-      endedGame = false;
-      document.location.reload();
+          togglePauseGame();
+//      document.location.reload();
   }
 
   if (gameState === gameStates.active) {
@@ -194,7 +195,7 @@ function touchMoveHandler(e) {
         var touch = touches[i];
         if (touch.clientY > canvas.height-50) {
           movePaddleByClientX(touch.clientX);
-          gameState = gameStates.active;
+//          gameState = gameStates.active;
         } else {
           togglePauseGame();
         }
