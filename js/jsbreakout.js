@@ -9,8 +9,6 @@ Object.freeze(gameStates);
 
 var rightPressed = false;
 var leftPressed = false;
-var pausedGame = false;
-var activeGame = false;
 var gameState = false;
 var endedGame = false;
 document.addEventListener("keydown", keyDownHandler, false);
@@ -99,7 +97,7 @@ levels[3] = {row:2, column:8, speed:canvas.width/60 };
 levels[4] = {row:3, column:11, speed:canvas.width/60 };
 levels[5] = {row:3, column:11, speed:canvas.width/60 };
 
-var numLevel = 2;
+var numLevel = 6;     // array length including [0]
 var currentLevel = 0;
 var bricks = [];
 var numBricks = 0;
@@ -182,12 +180,7 @@ function mouseMoveHandler(e) {
 
 function touchMoveHandler(e) {
   if (gameState === gameStates.gameover) {
-    activeGame = true;
     gameState = gameStates.active;
-//    if(endedGame) {
-//      endedGame = false;
-//      document.location.reload();
-//    }
    } else if (gameState === gameState.win) {
       endedGame = false;
       document.location.reload();
@@ -263,8 +256,6 @@ function collisionDetection() {
           if (0 === b.status) {
           numBricks -= 1;
             if(0 === numBricks) {
-//              activeGame = false;
-//              endedGame = true;
               gameState = gameStates.leveldone;
               currentLevel += 1;
               if (currentLevel === numLevel) {
@@ -323,7 +314,6 @@ function moveBall() {
         // ball out
         lives--;
         if(!lives) {
-          activeGame = false;
           gameState = gameStates.gameover;
         }
         else {
@@ -392,13 +382,11 @@ function breakout() {
     drawOverlay("Get Ready for Level " + (currentLevel+1)*(tempoOffset*1));
     splashscreen();
   } else {
-    drawOverlay("Get Ready for Devel " + currentLevel*(tempoOffset+1));
+    drawOverlay("Get Ready!");
     splashscreen();
   }
   requestAnimationFrame(breakout);
 }
 
-pausedGame = false;
-activeGame = false;
 initialize();
 breakout();
