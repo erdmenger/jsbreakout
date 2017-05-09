@@ -162,11 +162,10 @@ function drawBall() {
 
 // paddle
 var paddleHeight = 10;
-var paddleWidth = canvas.width/
-var paddleSpeed = canvas.width/80//-1;
+var paddleWidth = canvas.width/7;
+var paddleSpeed = canvas.width/80-1;
 var paddleX = (canvas.width-paddleWidth)/2;
-var paddleWidth = canvas.width/
-var paddleY = canvas.height - b//allRadius - paddleHeight;
+var paddleY = canvas.height - ballRadius - paddleHeight;
 
 var x = canvas.width/2;
 var y = paddleY - ballRadius * 2 + 2;
