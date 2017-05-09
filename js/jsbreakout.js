@@ -1,14 +1,16 @@
 var canvas = document.getElementById("myCanvas");
 var ctx = canvas.getContext("2d");
-var x = canvas.width/2;
-var y = canvas.height-30;
-var ballSpeed = canvas.width/80;
+var ballSpeed = canvas.width/60;
 
 // controls
+var gameStates = { "active": 0, "paused": 1, "win": 2, "gameover": 3 };
+Object.freeze(gameStates);
+
 var rightPressed = false;
 var leftPressed = false;
 var pausedGame = false;
 var activeGame = false;
+var gameState = gameStates.gameover;
 var endedGame = false;
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
@@ -77,7 +79,7 @@ function drawDXDY() {
 
 // bricks
 var brickRowCount = 3;
-var brickColumnCount = 8;
+var brickColumnCount = 11;
 var brickWidth = canvas.width/(brickColumnCount + 1);    // 75 was default
 var brickHeight = brickWidth * 0.3;
 var brickPadding = brickWidth/(brickColumnCount + 1); // default was 10;
@@ -118,7 +120,7 @@ function drawBricks() {
 }
 
 // ball
-var ballRadius = canvas.width/60; // default was 8
+var ballRadius = canvas.width/80; // default was 8
 var dx = ballSpeed/2; // default was 2
 var dy = - ballSpeed/2;
 
@@ -135,6 +137,10 @@ var paddleHeight = 10;
 var paddleWidth = canvas.width/7;
 var paddleSpeed = canvas.width/80-1;
 var paddleX = (canvas.width-paddleWidth)/2;
+var paddleY = canvas.height - ballRadius - paddleHeight;
+
+var x = canvas.width/2;
+var y = paddleY - ballRadius * 2 + 2;
 
 function mouseMoveHandler(e) {
     var relativeX = e.clientX - canvas.offsetLeft;
@@ -144,28 +150,25 @@ function mouseMoveHandler(e) {
 }
 
 
-var gameStates = { "active": 0, "paused": 1, "win": 2, "gameover": 3 };
-Object.freeze(gameStates);
-
 function touchMoveHandler(e) {
-//    if (gameState === gameStates.active) {
-//        e.preventDefault();
+  if (gameState === gameStates.gameover) {
+    activeGame = true;
+    gameState = gameStates.active;
+    if(endedGame) {
+      endedGame = false;
+      document.location.reload();
+    }
+  }
 
-      if(!activeGame) {
-        activeGame = true;
-        if(endedGame) {
-          endedGame = false;
-          document.location.reload();
-        }
-      }
+  if (gameState === gameStates.active) {
+    e.preventDefault();
 
-        var touches = e.changedTouches;
-
-        for (var i = 0; i < touches.length; i++) {
-            var touch = touches[i];
-            movePaddleByClientX(touch.clientX);
-        }
-//    }
+    var touches = e.changedTouches;
+    for (var i = 0; i < touches.length; i++) {
+        var touch = touches[i];
+        movePaddleByClientX(touch.clientX);
+    }
+  }
 }
 
 function movePaddleByClientX(clientX) {
@@ -211,7 +214,7 @@ function collisionDetection() {
     for(r=0; r<brickRowCount; r++) {
       var b = bricks[c][r];
       if(b.status > 0) {
-        if( x > b.x && x < b.x+brickWidth && y > b.y && y < b.y+brickHeight) {
+        if( x+ballRadius > b.x && x-ballRadius < b.x+brickWidth && y+ballRadius > b.y && y-ballRadius < b.y+brickHeight) {
           if( (x < b.x+ballRadius && dx>0) ||
               (x > b.x+brickWidth-ballRadius && dx<0) ) {
             dx = -dx;
@@ -252,7 +255,7 @@ function moveBall() {
   // bounce the ball from top
   if(y + dy < ballRadius) {
       dy = -dy;
-  } else if(y + dy > canvas.height - ballRadius - paddleHeight ) {
+  } else if(y + dy > paddleY ) {
       // bounce from paddle
       if(x > paddleX && x < paddleX + paddleWidth) {
           dy = -dy;
@@ -349,4 +352,5 @@ function breakout() {
 
 pausedGame = false;
 activeGame = false;
+// gameState = gameStates.active;
 breakout();
