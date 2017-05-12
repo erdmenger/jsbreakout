@@ -183,7 +183,7 @@ function touchMoveHandler(e) {
 //    gameState = gameStates.active;
 //
 //   } else if (gameState === gameState.win) {
-     gameState = gameStates.active;
+//      gameState = gameStates.active;
 //          togglePauseGame();
 //      document.location.reload();
 //  } else
