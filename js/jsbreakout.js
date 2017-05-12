@@ -276,7 +276,7 @@ function drawOverlay(text) {
 }
 
 function drawBoard() {
-  ctx.strokeStyle = 'blue';
+  ctx.strokeStyle = "#0095DD";
   ctx.lineWidth = '2';
   ctx.strokeRect(gameField.xOffset-1, gameField.yOffset-1,
     gameField.width-gameField.xOffset, gameField.height-gameField.yOffset);
