@@ -1,5 +1,9 @@
 var canvas = document.getElementById("myCanvas");
 var ctx = canvas.getContext("2d");
+// dynamic window size
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
 var ballSpeed = canvas.width/60;
 var lives = 3;
 
@@ -179,14 +183,6 @@ function mouseMoveHandler(e) {
 
 
 function touchMoveHandler(e) {
-//  if (gameState === gameStates.gameover) {
-//    gameState = gameStates.active;
-//
-//   } else if (gameState === gameState.win) {
-//      gameState = gameStates.active;
-//          togglePauseGame();
-//      document.location.reload();
-//  } else
   if (gameState === gameStates.active) {
     e.preventDefault();
 
@@ -195,13 +191,11 @@ function touchMoveHandler(e) {
         var touch = touches[i];
         if (touch.clientY > canvas.height-50) {
           movePaddleByClientX(touch.clientX);
-//          gameState = gameStates.active;
         } else {
           togglePauseGame();
         }
     }
   } else {
-//    gameState = gameStates.active;
     togglePauseGame();
   }
 }
