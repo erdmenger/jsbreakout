@@ -4,7 +4,14 @@ var ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-var ballSpeed = canvas.width/60;
+// the field
+var gameField = { "width": canvas.width - 20,
+                  "height": canvas.height - 40,
+                  "offsetLeft": canvas.offsetLeft,
+                  "xOffset": 10,
+                  "yOffset": 30 };
+
+var ballSpeed = gameField.width/60;
 var lives = 3;
 
 // controls
@@ -49,15 +56,12 @@ function togglePauseGame() {
   } else if (gameState === gameStates.gameover) {
       gameState = gameStates.active;
       initialize();
-//      document.location.reload();
   } else if (gameState === gameStates.win) {
       gameState = gameStates.active;
       initialize();
-//      document.location.reload();
   } else if (gameState === gameStates.leveldone) {
     gameState = gameStates.active;
     initialize();
-//      document.location.reload();
   } else {
     gameState = gameStates.active;
   }
@@ -67,7 +71,7 @@ function togglePauseGame() {
 function drawLives() {
   ctx.font = "16px Arial";
   ctx.fillStyle = "#0095DD";
-  ctx.fillText("Lives: "+lives, canvas.width-65, 20);
+  ctx.fillText("Lives: "+lives, gameField.width-65, 20);
 }
 
 // score
@@ -81,25 +85,25 @@ function drawScore() {
 function drawDXDY() {
   ctx.font = "16px Arial";
   ctx.fillStyle = "#0095DD";
-  ctx.fillText("[dx:dy] [" + dx + " : " + dy + "]", canvas.width/2-30, 20);
+  ctx.fillText("[dx:dy] [" + dx + " : " + dy + "]", gameField.width/2-30, 20);
 }
 
 // initialize
 var brickRowCount = 2;
 var brickColumnCount = 5;
-var brickWidth = canvas.width/(brickColumnCount + 1);    // 75 was default
+var brickWidth = gameField.width/(brickColumnCount + 1);    // 75 was default
 var brickHeight = brickWidth * 0.3;
 var brickPadding = brickWidth/(brickColumnCount + 1); // default was 10;
-var brickOffsetTop = canvas.height *.2;
+var brickOffsetTop = gameField.height *.2;
 var brickOffsetLeft = brickWidth/(brickColumnCount + 1); // default was 30;
 
 var levels = [];
-levels[0] = {row:1, column:5, speed:canvas.width/80 };
-levels[1] = {row:2, column:5, speed:canvas.width/80 };
-levels[2] = {row:3, column:5, speed:canvas.width/80 };
-levels[3] = {row:2, column:8, speed:canvas.width/60 };
-levels[4] = {row:3, column:11, speed:canvas.width/60 };
-levels[5] = {row:3, column:11, speed:canvas.width/60 };
+levels[0] = {row:1, column:5, speed:gameField.width/80 };
+levels[1] = {row:2, column:5, speed:gameField.width/80 };
+levels[2] = {row:3, column:5, speed:gameField.width/80 };
+levels[3] = {row:2, column:8, speed:gameField.width/60 };
+levels[4] = {row:3, column:11, speed:gameField.width/60 };
+levels[5] = {row:3, column:11, speed:gameField.width/60 };
 
 var numLevel = 6;     // array length including [0]
 var currentLevel = 0;
@@ -112,7 +116,7 @@ function initialize() {
   brickRowCount = levels[currentLevel].row;
   ballSpeed = levels[currentLevel].speed + tempoOffset;
   numBricks = 0;
-  x = canvas.width/2;
+  x = gameField.width/2;
   y = paddleY - ballRadius * 2 + 2;
   dx = ballSpeed / 2;
   dy = ballSpeed / 2;
@@ -152,7 +156,7 @@ function drawBricks() {
 }
 
 // ball
-var ballRadius = canvas.width/80; // default was 8
+var ballRadius = gameField.width/80; // default was 8
 var dx = ballSpeed/2; // default was 2
 var dy = - ballSpeed/2;
 
@@ -166,17 +170,17 @@ function drawBall() {
 
 // paddle
 var paddleHeight = 10;
-var paddleWidth = canvas.width/7;
-var paddleSpeed = canvas.width/80-1;
-var paddleX = (canvas.width-paddleWidth)/2;
-var paddleY = canvas.height - ballRadius - paddleHeight;
+var paddleWidth = gameField.width/7;
+var paddleSpeed = gameField.width/80-1;
+var paddleX = (gameField.width-paddleWidth)/2;
+var paddleY = gameField.height - ballRadius - paddleHeight;
 
-var x = canvas.width/2;
+var x = gameField.width/2;
 var y = paddleY - ballRadius * 2 + 2;
 
 function mouseMoveHandler(e) {
-    var relativeX = e.clientX - canvas.offsetLeft;
-    if(relativeX > 0 && relativeX < canvas.width) {
+    var relativeX = e.clientX - gameField.offsetLeft;
+    if(relativeX > gameField.xOffset && relativeX < gameField.width) {
         paddleX = relativeX - paddleWidth/2;
     }
 }
@@ -189,7 +193,7 @@ function touchMoveHandler(e) {
     var touches = e.changedTouches;
     for (var i = 0; i < touches.length; i++) {
         var touch = touches[i];
-        if (touch.clientY > canvas.height-50) {
+        if (touch.clientY > gameField.height-50) {
           movePaddleByClientX(touch.clientX);
         } else {
           togglePauseGame();
@@ -201,14 +205,14 @@ function touchMoveHandler(e) {
 }
 
 function movePaddleByClientX(clientX) {
-    var relativeX = clientX - canvas.offsetLeft;
-    if (relativeX > 0 && (relativeX + (paddleWidth / 2)) < canvas.width) {
+    var relativeX = clientX - gameField.offsetLeft;
+    if (relativeX > gameField.xOffset && (relativeX + (paddleWidth / 2)) < gameField.width) {
         var newX = relativeX - paddleWidth / 2;
 
-        if (newX <= 0) {
-            paddleX = 0;
-        } else if (newX >= canvas.width) {
-            paddleX = canvas.width;
+        if (newX <= gameField.xOffset) {
+            paddleX = gameField.xOffset;
+        } else if (newX >= gameField.width) {
+            paddleX = gameField.width;
         } else {
             paddleX = newX;
         }
@@ -217,25 +221,10 @@ function movePaddleByClientX(clientX) {
 
 function drawPaddle() {
   ctx.beginPath();
-  ctx.rect(paddleX, canvas.height-paddleHeight-10, paddleWidth, paddleHeight);
+  ctx.rect(paddleX, gameField.height-paddleHeight-10, paddleWidth, paddleHeight);
   ctx.fillStyle = "#0095DD";
   ctx.fill();
   ctx.closePath();
-}
-
-function drawOverlay(text) {
-    ctx.beginPath();
-    ctx.rect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "rgba(0,0,0,.2)";
-    ctx.fill();
-    ctx.closePath();
-
-    ctx.beginPath();
-    ctx.font = "30px Courier New";
-    ctx.fillStyle = "black";
-    ctx.textAlign = "center";
-    ctx.fillText(text, canvas.width / 2, canvas.height / 2);
-    ctx.closePath();
 }
 
 function collisionDetection() {
@@ -258,8 +247,6 @@ function collisionDetection() {
               gameState = gameStates.leveldone;
               currentLevel += 1;
               if (currentLevel === numLevel) {
-                      // *(tempoOffset+1)
-                // gameState = gameStates.win;
                 currentLevel = 0;
                 tempoOffset = 1;
               }
@@ -271,10 +258,34 @@ function collisionDetection() {
   }
 }
 
+
+function drawOverlay(text) {
+    ctx.beginPath();
+    ctx.rect(gameField.xOffset, gameField.yOffset,
+      gameField.width-gameField.xOffset, gameField.height-gameField.yOffset);
+    ctx.fillStyle = "rgba(0,0,0,.2)";
+    ctx.fill();
+    ctx.closePath();
+
+    ctx.beginPath();
+    ctx.font = "30px Courier New";
+    ctx.fillStyle = "black";
+    ctx.textAlign = "center";
+    ctx.fillText(text, gameField.width / 2, gameField.height / 2);
+    ctx.closePath();
+}
+
+function drawBoard() {
+  ctx.strokeStyle = 'blue';
+  ctx.lineWidth = '2';
+  ctx.strokeRect(gameField.xOffset-1, gameField.yOffset-1,
+    gameField.width-gameField.xOffset, gameField.height-gameField.yOffset);
+}
+
 function draw() {
-  // drawing code
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+  drawBoard();
   drawBricks();
   drawScore();
   drawBall();
@@ -284,11 +295,11 @@ function draw() {
 
 function moveBall() {
   // bounce off the walls left and right
-  if(x + dx > canvas.width-ballRadius || x + dx < ballRadius) {
+  if(x + dx > gameField.width-ballRadius || x + dx < ballRadius+gameField.xOffset) {
       dx = -dx;
   }
   // bounce the ball from top
-  if(y + dy < ballRadius) {
+  if(y + dy < ballRadius + gameField.yOffset) {
       dy = -dy;
   } else if(y + dy > paddleY ) {
       // bounce from paddle
@@ -316,11 +327,11 @@ function moveBall() {
           gameState = gameStates.gameover;
         }
         else {
-            x = canvas.width/2;
-            y = canvas.height-30;
+            x = gameField.width/2;
+            y = gameField.height-30;
             dx = 2;
             dy = -2;
-            paddleX = (canvas.width-paddleWidth)/2;
+            paddleX = (gameField.width-paddleWidth)/2;
         }
       }
   }
@@ -329,7 +340,7 @@ function moveBall() {
 }
 
 function movePaddle() {
-  if(rightPressed && paddleX < canvas.width-paddleWidth) {
+  if(rightPressed && paddleX < gameField.width-paddleWidth) {
       paddleX += paddleSpeed;
   }
   else if(leftPressed && paddleX > 0) {
@@ -349,17 +360,17 @@ function splashscreen() {
       ctx.font = "35px Courier New";
       ctx.fillStyle = "black";
       ctx.textAlign = "center";
-      ctx.fillText("j s B R E A K O U T", canvas.width / 2, canvas.height / 2 - 40);
+      ctx.fillText("j s B R E A K O U T", gameField.width / 2, gameField.height / 2 - 40);
       ctx.closePath();
 
       ctx.beginPath();
       ctx.font = "25px Courier New";
       ctx.fillStyle = "black";
       ctx.textAlign = "center";
-      ctx.fillText("Press SPACE to start.", canvas.width / 2, canvas.height/2 + 50);
-      ctx.fillText("LEFT, RIGHT or use MOUSE ", canvas.width / 2, canvas.height/2 + 80);
-      ctx.fillText("to move the paddle.", canvas.width / 2, canvas.height/2 + 110);
-      ctx.fillText("or TOUCH the screen", canvas.width / 2, canvas.height/2 + 150);
+      ctx.fillText("Press SPACE to start.", gameField.width / 2, gameField.height/2 + 50);
+      ctx.fillText("LEFT, RIGHT or use MOUSE ", gameField.width / 2, gameField.height/2 + 80);
+      ctx.fillText("to move the paddle.", gameField.width / 2, gameField.height/2 + 110);
+      ctx.fillText("or TOUCH the screen", gameField.width / 2, gameField.height/2 + 150);
       ctx.closePath();
 
 }
