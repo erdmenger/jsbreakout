@@ -6,7 +6,7 @@ canvas.height = window.innerHeight;
 
 // the field
 var gameField = { "width": canvas.width - 20,
-                  "height": canvas.height - 40,
+                  "height": canvas.height - 90,
                   "offsetLeft": canvas.offsetLeft,
                   "xOffset": 10,
                   "yOffset": 30 };
@@ -279,7 +279,7 @@ function drawBoard() {
   ctx.strokeStyle = "#0095DD";
   ctx.lineWidth = '2';
   ctx.strokeRect(gameField.xOffset-1, gameField.yOffset-1,
-    gameField.width-gameField.xOffset, gameField.height-gameField.yOffset);
+    gameField.width-gameField.xOffset+1, gameField.height-gameField.yOffset);
 }
 
 function draw() {
