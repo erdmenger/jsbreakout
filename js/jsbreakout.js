@@ -55,9 +55,13 @@ function togglePauseGame() {
     gameState = gameStates.paused;
   } else if (gameState === gameStates.gameover) {
       gameState = gameStates.active;
+      score = 0;
+      lives = 3;
       initialize();
   } else if (gameState === gameStates.win) {
       gameState = gameStates.active;
+      score = 0;
+      lives = 3;
       initialize();
   } else if (gameState === gameStates.leveldone) {
     gameState = gameStates.active;
@@ -89,13 +93,12 @@ function drawDXDY() {
 }
 
 // initialize
-var brickRowCount = 2;
-var brickColumnCount = 5;
-var brickWidth = gameField.width/(brickColumnCount + 1);    // 75 was default
-var brickHeight = brickWidth * 0.3;
-var brickPadding = brickWidth/(brickColumnCount + 1); // default was 10;
-var brickOffsetTop = gameField.height *.2;
-var brickOffsetLeft = brickWidth/(brickColumnCount + 1); // default was 30;
+var brickColumnCount; // = 5;
+var brickWidth;       // = gameField.width/(brickColumnCount + 1);    // 75 was default
+var brickHeight;      // = brickWidth * 0.3;
+var brickPadding;     // = brickWidth/(brickColumnCount + 1); // default was 10;
+var brickOffsetTop;   // = gameField.height *.2;
+var brickOffsetLeft;  // = brickWidth/(brickColumnCount + 1); // default was 30;
 
 var levels = [];
 levels[0] = {row:1, column:5, speed:gameField.width/80 };
@@ -114,7 +117,15 @@ var tempoOffset = 0;
 function initialize() {
   brickColumnCount = levels[currentLevel].column;
   brickRowCount = levels[currentLevel].row;
-  ballSpeed = levels[currentLevel].speed + tempoOffset;
+  brickWidth = gameField.width/(brickColumnCount + 1);
+  brickHeight = brickWidth * 0.3;
+  brickPadding = brickWidth/(brickColumnCount + 1);
+  brickOffsetTop = gameField.height *.2;
+  brickOffsetLeft = brickWidth/(brickColumnCount + 1);
+  if(ballSpeed<levels[currentLevel].speed + tempoOffset) {
+    // ballSpeed never decreases from the previous levels speed
+    ballSpeed = levels[currentLevel].speed + tempoOffset; // default was 30;
+  }
   numBricks = 0;
   x = gameField.width/2;
   y = paddleY - ballRadius * 2 + 2;
@@ -157,8 +168,8 @@ function drawBricks() {
 
 // ball
 var ballRadius = gameField.width/80; // default was 8
-var dx = ballSpeed/2; // default was 2
-var dy = - ballSpeed/2;
+// var dx = ballSpeed/2; // default was 2
+// var dy = - ballSpeed/2;
 
 function drawBall() {
   ctx.beginPath();
@@ -248,7 +259,7 @@ function collisionDetection() {
               currentLevel += 1;
               if (currentLevel === numLevel) {
                 currentLevel = 0;
-                tempoOffset = 1;
+                tempoOffset += 1;
               }
             }
           }
@@ -257,7 +268,6 @@ function collisionDetection() {
     }
   }
 }
-
 
 function drawOverlay(text) {
     ctx.beginPath();
@@ -325,12 +335,14 @@ function moveBall() {
         lives--;
         if(!lives) {
           gameState = gameStates.gameover;
+          currentLevel = 0;
+          
         }
         else {
             x = gameField.width/2;
             y = gameField.height-30;
-            dx = 2;
-            dy = -2;
+            dx = ballSpeed / 2;
+            dy = ballSpeed / 2;
             paddleX = (gameField.width-paddleWidth)/2;
         }
       }
@@ -392,6 +404,7 @@ function breakout() {
     drawOverlay("Get Ready for Level " + (currentLevel+1)*(tempoOffset+1));
     splashscreen();
   } else {
+    // TODO: add OUT state and reset dx,dy
     drawOverlay("Get Ready!");
     splashscreen();
   }
